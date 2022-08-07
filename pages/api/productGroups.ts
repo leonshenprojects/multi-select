@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import productGroupData from "../../lib/productGroupData";
 
-type ProductGroupData = {
+export type ProductGroupData = {
   productGroups: Array<string>;
 };
 
