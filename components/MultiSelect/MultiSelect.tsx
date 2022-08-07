@@ -1,3 +1,4 @@
+import { debounce } from "lodash";
 import React, {
   FunctionComponent,
   InputHTMLAttributes,
@@ -27,9 +28,12 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   const [selectedOptions, setSelectedOption] = useState(new Set());
   const [filterText, setFilterText] = useState("");
 
-  const handleFilterInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFilterText(event.target.value);
-  };
+  const handleFilterInput = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFilterText(event.target.value);
+    },
+    300
+  );
 
   const filteredOptions = useMemo(() => {
     if (!filterText)
