@@ -2,9 +2,11 @@ import { debounce } from "lodash";
 import React, {
   FunctionComponent,
   InputHTMLAttributes,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import { htmlDecode } from "../../lib/htmlDecode";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
@@ -25,8 +27,9 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const [selectedOptions, setSelectedOption] = useState(new Set());
+  const [selectedOptions, setSelectedOptions] = useState(new Set());
   const [filterText, setFilterText] = useState("");
+  const cacheKey = `multiSelectCache - ${title}`;
 
   const handleFilterInput = debounce(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,16 +63,27 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   ) => {
     if (event.target.checked) {
       selectedOptions.add(option);
-      setSelectedOption(new Set(selectedOptions));
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify(Array.from(selectedOptions))
+      );
+      setSelectedOptions(new Set(selectedOptions));
       return;
     }
 
     selectedOptions.delete(option);
-    setSelectedOption(new Set(selectedOptions));
+    localStorage.setItem(cacheKey, JSON.stringify(Array.from(selectedOptions)));
+    setSelectedOptions(new Set(selectedOptions));
   };
 
   const noAvailablesOptions =
     filteredOptions.length === 0 && selectedOptions.size === 0;
+
+  useEffect(() => {
+    const cachedSelectedOptions = localStorage.getItem(cacheKey);
+    if (!cachedSelectedOptions) return;
+    setSelectedOptions(new Set(JSON.parse(cachedSelectedOptions)));
+  }, []);
 
   return (
     <div className={styles.multiselect}>
@@ -85,9 +99,9 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         {loading ? (
           <p>Loading...</p>
         ) : isErrored ? (
-          <p>Failed to get product groups</p>
+          <p>Failed to get options</p>
         ) : noAvailablesOptions ? (
-          <p>No product groups found.</p>
+          <p>No options found.</p>
         ) : (
           <>
             {sortedSelectedOptions.map((option) => {
@@ -103,7 +117,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
                     onChange={(event) => handleCheckboxToggle(event, option)}
                     checked
                   />
-                  <label htmlFor={id}>{option.label}</label>
+                  <label htmlFor={id}>{htmlDecode(option.label)}</label>
                 </div>
               );
             })}
@@ -120,7 +134,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
                     value={option.value}
                     onChange={(event) => handleCheckboxToggle(event, option)}
                   />
-                  <label htmlFor={id}>{option.label}</label>
+                  <label htmlFor={id}>{htmlDecode(option.label)}</label>
                 </div>
               );
             })}
