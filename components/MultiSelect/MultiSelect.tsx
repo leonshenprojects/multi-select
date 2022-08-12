@@ -27,7 +27,8 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const [selectedOptions, setSelectedOptions] = useState(new Set());
+  const [selectedOptions, setSelectedOptions] =
+    useState<Array<MultiSelectOption>>();
   const [filterText, setFilterText] = useState("");
   const cacheKey = `multiSelectCache - ${title}`;
 
@@ -39,50 +40,58 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   );
 
   const filteredOptions = useMemo(() => {
-    if (!filterText)
-      return options.filter((option) => !selectedOptions.has(option));
-
-    return options.filter(
+    const unselectedOptions = options.filter(
       (option) =>
-        option.label.toLocaleLowerCase().match(filterText.toLowerCase()) &&
-        !selectedOptions.has(option)
+        !selectedOptions?.find(
+          (selectedOption) => selectedOption.label === option.label
+        )
+    );
+
+    if (!filterText) return unselectedOptions;
+
+    return unselectedOptions.filter((option) =>
+      option.label.toLocaleLowerCase().match(filterText.toLowerCase())
     );
   }, [options, filterText, selectedOptions]);
 
   const sortedSelectedOptions = useMemo(() => {
-    return (Array.from(selectedOptions) as Array<MultiSelectOption>).sort(
-      (a, b) => {
-        return a.label.localeCompare(b.label);
-      }
-    );
+    return selectedOptions?.sort((a, b) => {
+      return a.label.localeCompare(b.label);
+    });
   }, [selectedOptions]);
 
   const handleCheckboxToggle = (
     event: React.ChangeEvent<HTMLInputElement>,
     option: MultiSelectOption
   ) => {
-    if (event.target.checked) {
-      selectedOptions.add(option);
-      localStorage.setItem(
-        cacheKey,
-        JSON.stringify(Array.from(selectedOptions))
-      );
-      setSelectedOptions(new Set(selectedOptions));
-      return;
-    }
+    setSelectedOptions((prev) => {
+      if (event.target.checked) {
+        return [...(prev || []), option];
+      }
 
-    selectedOptions.delete(option);
-    localStorage.setItem(cacheKey, JSON.stringify(Array.from(selectedOptions)));
-    setSelectedOptions(new Set(selectedOptions));
+      return prev?.filter(
+        (selectedOption) => selectedOption.label !== option.label
+      );
+    });
   };
 
   const noAvailablesOptions =
-    filteredOptions.length === 0 && selectedOptions.size === 0;
+    filteredOptions.length === 0 &&
+    (!selectedOptions || selectedOptions.length === 0);
+
+  useEffect(() => {
+    if (!selectedOptions) {
+      localStorage.removeItem(cacheKey);
+      return;
+    }
+
+    localStorage.setItem(cacheKey, JSON.stringify(selectedOptions));
+  }, [selectedOptions]);
 
   useEffect(() => {
     const cachedSelectedOptions = localStorage.getItem(cacheKey);
     if (!cachedSelectedOptions) return;
-    setSelectedOptions(new Set(JSON.parse(cachedSelectedOptions)));
+    setSelectedOptions(JSON.parse(cachedSelectedOptions));
   }, []);
 
   return (
@@ -104,7 +113,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
           <p>No options found.</p>
         ) : (
           <>
-            {sortedSelectedOptions.map((option) => {
+            {sortedSelectedOptions?.map((option) => {
               const id = `selected option - ${option.label}`;
 
               return (
