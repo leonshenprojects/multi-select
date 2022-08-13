@@ -14,7 +14,8 @@ const Home: NextPage = () => {
   );
 
   const productGroupOptions: Array<MultiSelectOption> =
-    data?.productGroups.map((productGroup) => ({
+    data?.productGroups.map((productGroup, index) => ({
+      id: `${index} - ${productGroup}`,
       label: productGroup,
       value: productGroup,
     })) || [];

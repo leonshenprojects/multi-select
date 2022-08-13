@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce, isEmpty } from "lodash";
 import React, {
   FunctionComponent,
   InputHTMLAttributes,
@@ -13,9 +13,18 @@ import SearchBar from "../SearchBar/SearchBar";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
+  id: string;
   label: string;
   value: InputHTMLAttributes<HTMLInputElement>["value"];
 }
+
+interface Option extends MultiSelectOption {
+  selected: boolean;
+}
+
+type OptionsByIds = {
+  [id: string]: Option;
+};
 
 interface MultiSelectProps {
   title: string;
@@ -30,8 +39,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const [selectedOptions, setSelectedOptions] =
-    useState<Array<MultiSelectOption>>();
+  const [optionsByIds, setOptionsByIds] = useState<OptionsByIds>({});
   const [filterText, setFilterText] = useState("");
   const cacheKey = `multiSelectCache - ${title}`;
 
@@ -43,11 +51,8 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   );
 
   const filteredOptions = useMemo(() => {
-    const unselectedOptions = options.filter(
-      (option) =>
-        !selectedOptions?.find(
-          (selectedOption) => selectedOption.label === option.label
-        )
+    const unselectedOptions = Object.values(optionsByIds).filter(
+      (option) => !option.selected
     );
 
     if (!filterText) return unselectedOptions;
@@ -55,46 +60,64 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
     return unselectedOptions.filter((option) =>
       option.label.toLocaleLowerCase().match(filterText.toLowerCase())
     );
-  }, [options, filterText, selectedOptions]);
+  }, [optionsByIds, filterText]);
 
   const sortedSelectedOptions = useMemo(() => {
-    return selectedOptions?.sort((a, b) => {
+    const selectedOptions = Object.values(optionsByIds).filter(
+      (option) => option.selected
+    );
+
+    return selectedOptions.sort((a, b) => {
       return a.label.localeCompare(b.label);
     });
-  }, [selectedOptions]);
+  }, [optionsByIds]);
 
   const handleCheckboxToggle = (
     event: React.ChangeEvent<HTMLInputElement>,
     option: MultiSelectOption
   ) => {
-    setSelectedOptions((prev) => {
-      if (event.target.checked) {
-        return [...(prev || []), option];
-      }
-
-      return prev?.filter(
-        (selectedOption) => selectedOption.label !== option.label
-      );
-    });
+    setOptionsByIds((prev) => ({
+      ...prev,
+      [option.id]: {
+        ...prev[option.id],
+        selected: !!event.target.checked,
+      },
+    }));
   };
 
   const noAvailablesOptions =
-    filteredOptions.length === 0 &&
-    (!selectedOptions || selectedOptions.length === 0);
+    filteredOptions.length === 0 && sortedSelectedOptions.length === 0;
 
   useEffect(() => {
-    if (!selectedOptions) {
-      return;
+    let cachedSelectedOptionIds: Array<string> = [];
+    const cache = localStorage.getItem(cacheKey);
+
+    if (cache) {
+      cachedSelectedOptionIds = JSON.parse(cache);
     }
 
-    localStorage.setItem(cacheKey, JSON.stringify(selectedOptions));
-  }, [selectedOptions]);
+    const optionsByIds = options.reduce((optionsByIds, option) => {
+      return {
+        ...optionsByIds,
+        [option.id]: {
+          ...option,
+          selected: cachedSelectedOptionIds.includes(option.id),
+        },
+      } as OptionsByIds;
+    }, {} as OptionsByIds);
+
+    setOptionsByIds(optionsByIds);
+  }, [options]);
 
   useEffect(() => {
-    const cachedSelectedOptions = localStorage.getItem(cacheKey);
-    if (!cachedSelectedOptions) return;
-    setSelectedOptions(JSON.parse(cachedSelectedOptions));
-  }, []);
+    const selectedOptionIds = Object.values(optionsByIds)
+      .filter((option) => option.selected)
+      .map((option) => option.id);
+
+    if (isEmpty(optionsByIds)) return;
+
+    localStorage.setItem(cacheKey, JSON.stringify(selectedOptionIds));
+  }, [optionsByIds]);
 
   return (
     <form
@@ -121,7 +144,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
             <p>No options found.</p>
           ) : (
             <>
-              {sortedSelectedOptions?.map((option) => {
+              {sortedSelectedOptions.map((option) => {
                 const id = `selected option - ${option.label}`;
 
                 return (
