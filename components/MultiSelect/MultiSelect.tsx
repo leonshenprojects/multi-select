@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { htmlDecode } from "../../lib/htmlDecode";
+import Checkbox from "../Checkbox/Checkbox";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
@@ -95,62 +96,63 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   }, []);
 
   return (
-    <div className={styles.multiselect}>
-      <h3>{title}</h3>
+    <form>
+      <fieldset className={styles.multiselect}>
+        <legend>{title}</legend>
 
-      <input
-        type="text"
-        onChange={handleFilterInput}
-        placeholder="Zoek op ..."
-      />
+        <fieldset>
+          <legend className="visaullyHidden">Filter product categories</legend>
+          <input
+            type="search"
+            onChange={handleFilterInput}
+            placeholder="Zoek op ..."
+          />
+        </fieldset>
 
-      <div className={styles.multiselect__options}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : isErrored ? (
-          <p>Failed to get options</p>
-        ) : noAvailablesOptions ? (
-          <p>No options found.</p>
-        ) : (
-          <>
-            {sortedSelectedOptions?.map((option) => {
-              const id = `selected option - ${option.label}`;
+        <div className={styles.multiselect__options}>
+          {loading ? (
+            <p>Loading...</p>
+          ) : isErrored ? (
+            <p>Failed to get options</p>
+          ) : noAvailablesOptions ? (
+            <p>No options found.</p>
+          ) : (
+            <>
+              {sortedSelectedOptions?.map((option) => {
+                const id = `selected option - ${option.label}`;
 
-              return (
-                <div key={id}>
-                  <input
-                    type="checkbox"
+                return (
+                  <Checkbox
+                    key={id}
                     id={id}
-                    name={option.label}
+                    label={htmlDecode(option.label) || ""}
                     value={option.value}
-                    onChange={(event) => handleCheckboxToggle(event, option)}
-                    checked
-                  />
-                  <label htmlFor={id}>{htmlDecode(option.label)}</label>
-                </div>
-              );
-            })}
-
-            {filteredOptions.map((option) => {
-              const id = `filtered option - ${option.label}`;
-
-              return (
-                <div key={id}>
-                  <input
-                    type="checkbox"
-                    id={id}
-                    name={option.label}
-                    value={option.value}
+                    checked={true}
                     onChange={(event) => handleCheckboxToggle(event, option)}
                   />
-                  <label htmlFor={id}>{htmlDecode(option.label)}</label>
-                </div>
-              );
-            })}
-          </>
-        )}
-      </div>
-    </div>
+                );
+              })}
+
+              {filteredOptions.map((option) => {
+                const id = `filtered option - ${option.label}`;
+
+                return (
+                  <Checkbox
+                    key={id}
+                    id={id}
+                    label={htmlDecode(option.label) || ""}
+                    value={option.value}
+                    onChange={(event) => handleCheckboxToggle(event, option)}
+                  />
+                );
+              })}
+            </>
+          )}
+        </div>
+      </fieldset>
+
+      <button type="submit">Toepassen</button>
+    </form>
   );
 };
 

@@ -1,0 +1,33 @@
+.checkbox {
+  label {
+    display: block;
+    user-select: none;
+
+    &:before {
+      content: "";
+      display: inline-block;
+      vertical-align: middle;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #c5c5c5;
+      margin-right: 8px;
+    }
+  }
+
+  input:checked + :before {
+    border-color: #3863d9;
+  }
+
+  input:focus + label {
+    outline: dashed 2px lightgrey;
+    outline-offset: 5px;
+  }
+
+  input:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  + .checkbox {
+    margin-top: 10px;
+  }
+}
