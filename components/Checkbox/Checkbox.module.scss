@@ -50,7 +50,7 @@
 
   &__input:focus + .checkbox__label {
     outline: dashed 2px $color-border-grey;
-    outline-offset: 5px;
+    outline-offset: 2px;
   }
 
   &__input:focus:not(:focus-visible) {

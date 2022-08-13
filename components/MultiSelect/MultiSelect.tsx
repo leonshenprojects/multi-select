@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { htmlDecode } from "../../lib/htmlDecode";
 import Checkbox from "../Checkbox/Checkbox";
+import SearchBar from "../SearchBar/SearchBar";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
@@ -101,14 +102,11 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
           <h3 className={styles.multiSelect__title}>{title}</h3>
         </legend>
 
-        <fieldset>
-          <legend className="visuallyHidden">Filter product categories</legend>
-          <input
-            type="search"
-            onChange={handleFilterInput}
-            placeholder="Zoek op ..."
-          />
-        </fieldset>
+        <SearchBar
+          hiddenLabel="Filter product categories on input"
+          placeholder="Zoek op ..."
+          onChange={handleFilterInput}
+        />
 
         <div className={styles.multiSelect__options}>
           {loading ? (
