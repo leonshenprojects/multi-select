@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { htmlDecode } from "../../lib/htmlDecode";
+import Button from "../Button/Button";
 import Checkbox from "../Checkbox/Checkbox";
 import SearchBar from "../SearchBar/SearchBar";
 import styles from "./MultiSelect.module.scss";
@@ -96,7 +97,10 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   }, []);
 
   return (
-    <form className={styles.multiSelect}>
+    <form
+      className={styles.multiSelect}
+      onSubmit={(event) => event.preventDefault()}
+    >
       <fieldset>
         <legend>
           <h3 className={styles.multiSelect__title}>{title}</h3>
@@ -150,7 +154,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         </div>
       </fieldset>
 
-      <button type="submit">Toepassen</button>
+      <Button label="Toepassen" type="submit" />
     </form>
   );
 };

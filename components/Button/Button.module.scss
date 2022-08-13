@@ -1,0 +1,17 @@
+@import "../../styles/variables.scss";
+
+.button {
+  background-color: $color-bg-blue;
+  width: 100%;
+  border: 0px;
+  border-radius: 4px;
+  color: $color-bg-white;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:active,
+  &:focus-visible {
+    opacity: 0.5;
+  }
+}
