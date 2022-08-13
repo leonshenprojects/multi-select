@@ -1,6 +1,21 @@
-.multiselect {
+@import "../../styles/variables.scss";
+
+.multiSelect {
+  background-color: $color-bg-light-grey;
+  border: 2px solid $color-border-grey;
+  border-radius: 5px;
+  padding: 22px;
+
+  &__title {
+    font-weight: 300;
+    margin-top: 0px;
+    margin-bottom: 15px;
+  }
+
   &__options {
-    max-height: 200px;
+    margin: 15px 0px 20px;
+    max-height: 190px;
+    min-width: 300px;
     overflow-y: scroll;
   }
 }

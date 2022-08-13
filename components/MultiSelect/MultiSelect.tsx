@@ -95,12 +95,14 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   }, []);
 
   return (
-    <form>
-      <fieldset className={styles.multiselect}>
-        <legend>{title}</legend>
+    <form className={styles.multiSelect}>
+      <fieldset>
+        <legend>
+          <h3 className={styles.multiSelect__title}>{title}</h3>
+        </legend>
 
         <fieldset>
-          <legend className="visaullyHidden">Filter product categories</legend>
+          <legend className="visuallyHidden">Filter product categories</legend>
           <input
             type="search"
             onChange={handleFilterInput}
@@ -108,7 +110,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
           />
         </fieldset>
 
-        <div className={styles.multiselect__options}>
+        <div className={styles.multiSelect__options}>
           {loading ? (
             <p>Loading...</p>
           ) : isErrored ? (

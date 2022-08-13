@@ -17,17 +17,20 @@ const Checkbox: FunctionComponent<CheckboxProps> = ({
   onChange,
 }) => {
   return (
-    <div className={styles.checkbox}>
+    <div className={`${styles.checkbox}`}>
       <input
         id={id}
-        className="visaullyHidden"
+        className={`visuallyHidden ${styles.checkbox__input}`}
         type="checkbox"
         name={label}
         value={value}
         onChange={onChange}
         checked={checked}
       />
-      <label htmlFor={id}>{label}</label>
+      <label className={styles.checkbox__label} htmlFor={id}>
+        <span className={styles.checkbox__icon} />
+        <span className={styles.checkbox__text}>{label}</span>
+      </label>
     </div>
   );
 };

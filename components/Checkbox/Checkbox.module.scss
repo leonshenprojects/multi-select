@@ -1,29 +1,59 @@
+@import "../../styles/variables.scss";
+
 .checkbox {
-  label {
-    display: block;
+  &__label {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    justify-items: start;
+    align-items: center;
     user-select: none;
+  }
+
+  &__icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:before {
       content: "";
-      display: inline-block;
-      vertical-align: middle;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #c5c5c5;
-      margin-right: 8px;
+      display: block;
+      width: 16px;
+      height: 16px;
+      border: 1px solid $color-border-grey;
     }
   }
 
-  input:checked + :before {
-    border-color: #3863d9;
+  &__text {
+    font-size: 14px;
   }
 
-  input:focus + label {
-    outline: dashed 2px lightgrey;
+  &__input:checked {
+    + :before {
+      border-color: $color-bg-blue;
+    }
+
+    + .checkbox__label .checkbox__text {
+      color: $color-bg-blue;
+    }
+
+    + .checkbox__label .checkbox__icon {
+      &:after {
+        content: "";
+        background-color: #384ada;
+        width: 10px;
+        height: 10px;
+        position: absolute;
+      }
+    }
+  }
+
+  &__input:focus + .checkbox__label {
+    outline: dashed 2px $color-border-grey;
     outline-offset: 5px;
   }
 
-  input:focus:not(:focus-visible) {
+  &__input:focus:not(:focus-visible) {
     outline: none;
   }
 

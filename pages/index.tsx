@@ -22,7 +22,7 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Bol.com - Coding Challenge</title>
+        <title>Bol.com - Coding Assignment</title>
         <meta
           name="description"
           content="Multi-select filter for product groups."
@@ -31,16 +31,12 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Product group multi-select</h1>
-
-        <div className={styles.productGroupSelector}>
-          <MultiSelect
-            title="Productgroep"
-            options={productGroupOptions}
-            loading={isLoading}
-            isErrored={!!error}
-          />
-        </div>
+        <MultiSelect
+          title="Productgroep"
+          options={productGroupOptions}
+          loading={isLoading}
+          isErrored={!!error}
+        />
       </main>
     </div>
   );
