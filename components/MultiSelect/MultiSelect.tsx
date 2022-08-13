@@ -82,7 +82,6 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
 
   useEffect(() => {
     if (!selectedOptions) {
-      localStorage.removeItem(cacheKey);
       return;
     }
 
