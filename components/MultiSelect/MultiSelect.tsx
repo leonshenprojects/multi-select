@@ -85,9 +85,6 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
     }));
   };
 
-  const noAvailablesOptions =
-    filteredOptions.length === 0 && sortedSelectedOptions.length === 0;
-
   useEffect(() => {
     let cachedSelectedOptionIds: Array<string> = [];
     const cache = localStorage.getItem(cacheKey);
@@ -136,44 +133,38 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         />
 
         <div className={styles.multiSelect__options}>
-          {loading ? (
-            <p>Loading...</p>
-          ) : isErrored ? (
-            <p>Failed to get options</p>
-          ) : noAvailablesOptions ? (
-            <p>No options found.</p>
-          ) : (
-            <>
-              {sortedSelectedOptions.map((option) => {
-                const id = `selected option - ${option.label}`;
+          {loading && <p>Loading...</p>}
 
-                return (
-                  <Checkbox
-                    key={id}
-                    id={id}
-                    label={htmlDecode(option.label) || ""}
-                    value={option.value}
-                    checked={true}
-                    onChange={(event) => handleCheckboxToggle(event, option)}
-                  />
-                );
-              })}
+          {isErrored && <p>Failed to get options.</p>}
 
-              {filteredOptions.map((option) => {
-                const id = `filtered option - ${option.label}`;
+          {sortedSelectedOptions.map((option) => {
+            const id = `selected option - ${option.label}`;
 
-                return (
-                  <Checkbox
-                    key={id}
-                    id={id}
-                    label={htmlDecode(option.label) || ""}
-                    value={option.value}
-                    onChange={(event) => handleCheckboxToggle(event, option)}
-                  />
-                );
-              })}
-            </>
-          )}
+            return (
+              <Checkbox
+                key={id}
+                id={id}
+                label={htmlDecode(option.label) || ""}
+                value={option.value}
+                checked={true}
+                onChange={(event) => handleCheckboxToggle(event, option)}
+              />
+            );
+          })}
+
+          {filteredOptions.map((option) => {
+            const id = `filtered option - ${option.label}`;
+
+            return (
+              <Checkbox
+                key={id}
+                id={id}
+                label={htmlDecode(option.label) || ""}
+                value={option.value}
+                onChange={(event) => handleCheckboxToggle(event, option)}
+              />
+            );
+          })}
         </div>
       </fieldset>
 
