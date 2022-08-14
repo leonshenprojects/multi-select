@@ -1,8 +1,7 @@
-import { debounce, isEmpty } from "lodash";
+import { debounce } from "lodash";
 import React, {
   FunctionComponent,
   InputHTMLAttributes,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -10,6 +9,7 @@ import { htmlDecode } from "../../lib/htmlDecode";
 import Button from "../Button/Button";
 import Checkbox from "../Checkbox/Checkbox";
 import SearchBar from "../SearchBar/SearchBar";
+import useOptionsByIds from "./hooks/useOptionsByIds";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
@@ -17,14 +17,6 @@ export interface MultiSelectOption {
   label: string;
   value: InputHTMLAttributes<HTMLInputElement>["value"];
 }
-
-interface Option extends MultiSelectOption {
-  selected: boolean;
-}
-
-type OptionsByIds = {
-  [id: string]: Option;
-};
 
 interface MultiSelectProps {
   title: string;
@@ -39,9 +31,8 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const [optionsByIds, setOptionsByIds] = useState<OptionsByIds>({});
+  const [optionsByIds, setOptionsByIds] = useOptionsByIds(options, title);
   const [filterText, setFilterText] = useState("");
-  const cacheKey = `multiSelectCache - ${title}`;
 
   const handleFilterInput = debounce(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,37 +75,6 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
       },
     }));
   };
-
-  useEffect(() => {
-    let cachedSelectedOptionIds: Array<string> = [];
-    const cache = localStorage.getItem(cacheKey);
-
-    if (cache) {
-      cachedSelectedOptionIds = JSON.parse(cache);
-    }
-
-    const optionsByIds = options.reduce((optionsByIds, option) => {
-      return {
-        ...optionsByIds,
-        [option.id]: {
-          ...option,
-          selected: cachedSelectedOptionIds.includes(option.id),
-        },
-      } as OptionsByIds;
-    }, {} as OptionsByIds);
-
-    setOptionsByIds(optionsByIds);
-  }, [options]);
-
-  useEffect(() => {
-    const selectedOptionIds = Object.values(optionsByIds)
-      .filter((option) => option.selected)
-      .map((option) => option.id);
-
-    if (isEmpty(optionsByIds)) return;
-
-    localStorage.setItem(cacheKey, JSON.stringify(selectedOptionIds));
-  }, [optionsByIds]);
 
   return (
     <form
