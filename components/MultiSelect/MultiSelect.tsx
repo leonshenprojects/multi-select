@@ -25,12 +25,8 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const {
-    selectedOptions,
-    unselectedOptions,
-    handleFilterText,
-    handleCheckboxToggle,
-  } = useMultipleSelectOptions(options, title);
+  const { selectedOptions, unselectedOptions, onFilterText, onCheckboxToggle } =
+    useMultipleSelectOptions(options, title);
 
   return (
     <form
@@ -45,7 +41,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         <SearchBar
           hiddenLabel="Filter options on input"
           placeholder="Zoek op ..."
-          onChange={handleFilterText}
+          onChange={onFilterText}
         />
 
         <div className={styles.multiSelect__options}>
@@ -65,7 +61,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
                     label={htmlDecode(option.label) || ""}
                     value={option.value}
                     checked={true}
-                    onChange={(event) => handleCheckboxToggle(event, option)}
+                    onChange={(event) => onCheckboxToggle(event, option)}
                   />
                 );
               })}
@@ -79,7 +75,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
                     id={id}
                     label={htmlDecode(option.label) || ""}
                     value={option.value}
-                    onChange={(event) => handleCheckboxToggle(event, option)}
+                    onChange={(event) => onCheckboxToggle(event, option)}
                   />
                 );
               })}

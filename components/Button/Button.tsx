@@ -13,12 +13,7 @@ const Button: FunctionComponent<ButtonProps> = ({
   onClick,
 }) => {
   return (
-    <button
-      className={styles.button}
-      type={type}
-      onClick={onClick}
-      data-testid={`button type - ${type}`}
-    >
+    <button className={styles.button} type={type} onClick={onClick}>
       {label}
     </button>
   );

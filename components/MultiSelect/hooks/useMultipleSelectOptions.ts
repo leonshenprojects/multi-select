@@ -16,8 +16,8 @@ const useMultipleSelectOptions = (
 ): {
   selectedOptions: Array<Option>;
   unselectedOptions: Array<Option>;
-  handleFilterText(event: ChangeEvent<HTMLInputElement>): void;
-  handleCheckboxToggle(
+  onFilterText(event: ChangeEvent<HTMLInputElement>): void;
+  onCheckboxToggle(
     event: React.ChangeEvent<HTMLInputElement>,
     option: MultiSelectOption
   ): void;
@@ -68,6 +68,7 @@ const useMultipleSelectOptions = (
     }));
   };
 
+  // handle caching selected options
   useEffect(() => {
     const selectedOptionIds = Object.values(optionsByIds)
       .filter((option) => option.selected)
@@ -78,32 +79,32 @@ const useMultipleSelectOptions = (
     localStorage.setItem(cacheKey, JSON.stringify(selectedOptionIds));
   }, [optionsByIds, cacheKey]);
 
+  // handle creating optionsByIds
   useEffect(() => {
     let cachedSelectedOptionIds: Array<string> = [];
     const cache = localStorage.getItem(cacheKey);
-
     if (cache) {
       cachedSelectedOptionIds = JSON.parse(cache);
     }
 
-    const optionsByIds = options.reduce((optionsByIds, option) => {
-      return {
-        ...optionsByIds,
-        [option.id]: {
-          ...option,
-          selected: cachedSelectedOptionIds.includes(option.id),
-        },
-      } as OptionsByIds;
-    }, {} as OptionsByIds);
-
-    setOptionsByIds(optionsByIds);
+    setOptionsByIds(
+      options.reduce((optionsByIds, option) => {
+        return {
+          ...optionsByIds,
+          [option.id]: {
+            ...option,
+            selected: cachedSelectedOptionIds.includes(option.id),
+          },
+        };
+      }, {} as OptionsByIds)
+    );
   }, [options, cacheKey]);
 
   return {
     selectedOptions: sortedSelectedOptions,
     unselectedOptions: filteredOptions,
-    handleFilterText,
-    handleCheckboxToggle,
+    onFilterText: handleFilterText,
+    onCheckboxToggle: handleCheckboxToggle,
   };
 };
 

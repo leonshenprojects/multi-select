@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import MultiSelect, { MultiSelectOption } from "./MultiSelect";
 import "@testing-library/jest-dom";
 
@@ -15,9 +15,13 @@ describe("MultiSelect", () => {
   it("should display components", () => {
     render(<MultiSelect title="Product groups" options={options} />);
 
-    expect(screen.getByTestId("search bar")).toBeDefined();
-    expect(screen.getAllByTestId("checkbox")).toHaveLength(2);
-    expect(screen.getByTestId("button type - submit")).toBeDefined();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
+    expect(screen.getAllByRole("checkbox")[0]).toHaveAccessibleName(
+      "Thrillers"
+    );
+    expect(screen.getAllByRole("checkbox")[1]).toHaveAccessibleName("Fantasy");
+    expect(screen.getByTestId("search-bar")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /toepassen/i })).toBeTruthy();
   });
 
   it("should display loading state", () => {
@@ -26,7 +30,7 @@ describe("MultiSelect", () => {
     );
 
     expect(screen.getByText("Loading...")).toBeDefined();
-    expect(screen.queryAllByTestId("checkbox")).toHaveLength(0);
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
   });
 
   it("should display error state", () => {
@@ -34,91 +38,68 @@ describe("MultiSelect", () => {
       <MultiSelect title="Product groups" options={options} isErrored={true} />
     );
 
-    expect(screen.getByText("Failed to get options.")).toBeDefined();
-    expect(screen.queryAllByTestId("checkbox")).toHaveLength(0);
+    expect(screen.getByText("Failed to get options.")).toBeTruthy();
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
   });
 
   it("should select an option and move it to the top of the list", () => {
     render(<MultiSelect title="Product groups" options={options} />);
 
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 1"));
+    const firstItem = screen.getByRole("checkbox", { name: "Thrillers" });
+    const lastItem = screen.getByRole("checkbox", { name: "Fantasy" });
+    fireEvent.click(lastItem);
 
-    expect(screen.getByTestId("checkbox - selected option - 1")).toBeChecked();
-    expect(screen.queryByTestId("checkbox - filtered option - 1")).toBeNull();
+    expect(firstItem).not.toBeChecked();
+    expect(lastItem).toBeChecked();
+    // order should change because of selection
+    const updatedCheckboxes = screen.getAllByRole("checkbox");
+    expect(updatedCheckboxes[0]).toHaveAccessibleName("Fantasy");
+    expect(updatedCheckboxes[1]).toHaveAccessibleName("Thrillers");
   });
 
   it("should unselect an option and remove it from the top of the list", () => {
+    // Fantasy pre-selected
+    window.localStorage.setItem("multiSelectCache - Product groups", '["2"]');
     render(<MultiSelect title="Product groups" options={options} />);
 
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 1"));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Fantasy" }));
 
-    expect(screen.getByTestId("checkbox - selected option - 1")).toBeChecked();
-
-    fireEvent.click(screen.getByTestId("checkbox - selected option - 1"));
-
-    waitFor(() => {
-      expect(
-        screen.getByTestId("checkbox - filtered option - 1")
-      ).not.toBeChecked();
+    const updatedCheckboxes = screen.getAllByRole("checkbox");
+    const expectedNames = ["Thrillers", "Fantasy"];
+    updatedCheckboxes.forEach((checkbox, index) => {
+      expect(checkbox).toHaveAccessibleName(expectedNames[index]);
+      expect(checkbox).not.toBeChecked();
     });
-
-    expect(screen.queryByTestId("checkbox - selected option - 1")).toBeNull();
   });
 
   it("should sort selected options in an ascending order", () => {
-    render(<MultiSelect title="Product groups" options={options} />);
-
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 1"));
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 2"));
-
-    const selectedOptions = screen.getAllByRole("checkbox");
-
-    expect(selectedOptions[0]).toHaveAttribute(
-      "data-testid",
-      "checkbox - selected option - 2"
-    );
-    expect(selectedOptions[1]).toHaveAttribute(
-      "data-testid",
-      "checkbox - selected option - 1"
-    );
-  });
-
-  it("should store selected options in localStorage", () => {
-    render(<MultiSelect title="Product groups" options={options} />);
-
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 1"));
-    fireEvent.click(screen.getByTestId("checkbox - filtered option - 2"));
-
-    const cache = window.localStorage.getItem(
-      "multiSelectCache - Product groups"
-    );
-
-    expect(cache).toEqual('["1","2"]');
-  });
-
-  it("should restore selected options from localStorage", () => {
+    // Both groups pre-selected
     window.localStorage.setItem(
       "multiSelectCache - Product groups",
       '["1","2"]'
     );
     render(<MultiSelect title="Product groups" options={options} />);
 
-    expect(screen.getByTestId("checkbox - selected option - 1")).toBeChecked();
-    expect(screen.getByTestId("checkbox - selected option - 2")).toBeChecked();
+    const checkboxes = screen.getAllByRole("checkbox");
+    const expectedNames = ["Fantasy", "Thrillers"];
+    checkboxes.forEach((checkbox, index) => {
+      expect(checkbox).toHaveAccessibleName(expectedNames[index]);
+      expect(checkbox).toBeChecked();
+    });
   });
 
-  it("should remove unselected option from localStorage", () => {
+  it("should update selected options in localStorage", () => {
+    // both groups pre-selected
     window.localStorage.setItem(
       "multiSelectCache - Product groups",
       '["1","2"]'
     );
     render(<MultiSelect title="Product groups" options={options} />);
 
-    fireEvent.click(screen.getByTestId("checkbox - selected option - 1"));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Thrillers" }));
 
-    const cache = window.localStorage.getItem(
-      "multiSelectCache - Product groups"
-    );
-    expect(cache).toEqual('["2"]');
+    expect(
+      window.localStorage.getItem("multiSelectCache - Product groups")
+    ).toEqual('["2"]');
   });
 });

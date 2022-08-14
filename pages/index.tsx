@@ -15,7 +15,7 @@ const Home: NextPage = () => {
 
   const productGroupOptions: Array<MultiSelectOption> =
     data?.productGroups.map((productGroup, index) => ({
-      id: `${index} - ${productGroup}`,
+      id: index.toString(),
       label: productGroup,
       value: productGroup,
     })) || [];
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Bol.com - Coding Assignment</title>
+        <title>Product groups</title>
         <meta
           name="description"
           content="Multi-select filter for product groups."
