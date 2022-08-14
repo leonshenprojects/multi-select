@@ -1,15 +1,9 @@
-import { debounce } from "lodash";
-import React, {
-  FunctionComponent,
-  InputHTMLAttributes,
-  useMemo,
-  useState,
-} from "react";
+import React, { FunctionComponent, InputHTMLAttributes } from "react";
 import { htmlDecode } from "../../lib/htmlDecode";
 import Button from "../Button/Button";
 import Checkbox from "../Checkbox/Checkbox";
 import SearchBar from "../SearchBar/SearchBar";
-import useOptionsByIds from "./hooks/useOptionsByIds";
+import useMultipleSelectOptions from "./hooks/useMultipleSelectOptions";
 import styles from "./MultiSelect.module.scss";
 
 export interface MultiSelectOption {
@@ -31,50 +25,12 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
   loading,
   isErrored,
 }) => {
-  const [optionsByIds, setOptionsByIds] = useOptionsByIds(options, title);
-  const [filterText, setFilterText] = useState("");
-
-  const handleFilterInput = debounce(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFilterText(event.target.value);
-    },
-    300
-  );
-
-  const filteredOptions = useMemo(() => {
-    const unselectedOptions = Object.values(optionsByIds).filter(
-      (option) => !option.selected
-    );
-
-    if (!filterText) return unselectedOptions;
-
-    return unselectedOptions.filter((option) =>
-      option.label.toLocaleLowerCase().match(filterText.toLowerCase())
-    );
-  }, [optionsByIds, filterText]);
-
-  const sortedSelectedOptions = useMemo(() => {
-    const selectedOptions = Object.values(optionsByIds).filter(
-      (option) => option.selected
-    );
-
-    return selectedOptions.sort((a, b) => {
-      return a.label.localeCompare(b.label);
-    });
-  }, [optionsByIds]);
-
-  const handleCheckboxToggle = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    option: MultiSelectOption
-  ) => {
-    setOptionsByIds((prev) => ({
-      ...prev,
-      [option.id]: {
-        ...prev[option.id],
-        selected: !!event.target.checked,
-      },
-    }));
-  };
+  const {
+    selectedOptions,
+    unselectedOptions,
+    handleFilterText,
+    handleCheckboxToggle,
+  } = useMultipleSelectOptions(options, title);
 
   return (
     <form
@@ -89,7 +45,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         <SearchBar
           hiddenLabel="Filter options on input"
           placeholder="Zoek op ..."
-          onChange={handleFilterInput}
+          onChange={handleFilterText}
         />
 
         <div className={styles.multiSelect__options}>
@@ -99,7 +55,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
             <p>Loading...</p>
           ) : (
             <>
-              {sortedSelectedOptions.map((option) => {
+              {selectedOptions.map((option) => {
                 const id = `selected option - ${option.id}`;
 
                 return (
@@ -114,7 +70,7 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
                 );
               })}
 
-              {filteredOptions.map((option) => {
+              {unselectedOptions.map((option) => {
                 const id = `filtered option - ${option.id}`;
 
                 return (
