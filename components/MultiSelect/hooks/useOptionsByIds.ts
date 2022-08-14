@@ -25,7 +25,7 @@ const useOptionsByIds = (
     if (isEmpty(optionsByIds)) return;
 
     localStorage.setItem(cacheKey, JSON.stringify(selectedOptionIds));
-  }, [optionsByIds]);
+  }, [optionsByIds, cacheKey]);
 
   useEffect(() => {
     let cachedSelectedOptionIds: Array<string> = [];
@@ -46,7 +46,7 @@ const useOptionsByIds = (
     }, {} as OptionsByIds);
 
     setOptionsByIds(optionsByIds);
-  }, [options]);
+  }, [options, cacheKey]);
 
   return [optionsByIds, setOptionsByIds];
 };

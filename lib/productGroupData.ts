@@ -1,4 +1,4 @@
-export default {
+const productGroupData = {
   data: [
     "Literatuur &amp; Romans",
     "Thrillers",
@@ -431,3 +431,5 @@ export default {
     "Dier- &amp; Drogisterijacties",
   ],
 };
+
+export default productGroupData;

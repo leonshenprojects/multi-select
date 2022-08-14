@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ChangeEvent, FunctionComponent } from "react";
 import styles from "./SearchBar.module.scss";
 
@@ -21,11 +22,7 @@ const SearchBar: FunctionComponent<SearchBarProps> = ({
         onChange={onChange}
         placeholder={placeholder}
       />
-      <img
-        className={styles.searchBar__icon}
-        src="/search.svg"
-        alt="Search bar icon"
-      />
+      <Image src="/search.svg" alt="Search bar icon" height={16} width={16} />
     </fieldset>
   );
 };
