@@ -13,7 +13,7 @@ const SearchBar: FunctionComponent<SearchBarProps> = ({
   onChange,
 }) => {
   return (
-    <fieldset className={styles.searchBar}>
+    <fieldset className={styles.searchBar} data-testid="search bar">
       <legend className="visuallyHidden">{hiddenLabel}</legend>
       <input
         className={styles.searchBar__input}

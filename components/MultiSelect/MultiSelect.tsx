@@ -127,44 +127,48 @@ const MultiSelect: FunctionComponent<MultiSelectProps> = ({
         </legend>
 
         <SearchBar
-          hiddenLabel="Filter product categories on input"
+          hiddenLabel="Filter options on input"
           placeholder="Zoek op ..."
           onChange={handleFilterInput}
         />
 
         <div className={styles.multiSelect__options}>
-          {loading && <p>Loading...</p>}
+          {isErrored ? (
+            <p>Failed to get options.</p>
+          ) : loading ? (
+            <p>Loading...</p>
+          ) : (
+            <>
+              {sortedSelectedOptions.map((option) => {
+                const id = `selected option - ${option.id}`;
 
-          {isErrored && <p>Failed to get options.</p>}
+                return (
+                  <Checkbox
+                    key={id}
+                    id={id}
+                    label={htmlDecode(option.label) || ""}
+                    value={option.value}
+                    checked={true}
+                    onChange={(event) => handleCheckboxToggle(event, option)}
+                  />
+                );
+              })}
 
-          {sortedSelectedOptions.map((option) => {
-            const id = `selected option - ${option.label}`;
+              {filteredOptions.map((option) => {
+                const id = `filtered option - ${option.id}`;
 
-            return (
-              <Checkbox
-                key={id}
-                id={id}
-                label={htmlDecode(option.label) || ""}
-                value={option.value}
-                checked={true}
-                onChange={(event) => handleCheckboxToggle(event, option)}
-              />
-            );
-          })}
-
-          {filteredOptions.map((option) => {
-            const id = `filtered option - ${option.label}`;
-
-            return (
-              <Checkbox
-                key={id}
-                id={id}
-                label={htmlDecode(option.label) || ""}
-                value={option.value}
-                onChange={(event) => handleCheckboxToggle(event, option)}
-              />
-            );
-          })}
+                return (
+                  <Checkbox
+                    key={id}
+                    id={id}
+                    label={htmlDecode(option.label) || ""}
+                    value={option.value}
+                    onChange={(event) => handleCheckboxToggle(event, option)}
+                  />
+                );
+              })}
+            </>
+          )}
         </div>
       </fieldset>
 
